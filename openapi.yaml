@@ -1,0 +1,131 @@
+openapi: 3.1.1
+info:
+  title: Modern Fit API
+  description: API for tracking the weight data.
+  contact:
+    email: hannah.neugebauer@stud.hslu.ch
+    name: Modern Fit Team
+  version: 1.0.0
+
+servers:
+  - url: https://nmgjngnraiebrhovxpay.supabase.co/functions/v1/api
+
+paths:
+  /weights:
+    post:
+      summary: Create  a new weight record
+      description: Creates a new weight record. Returns the `id` used for administrative actions.
+      operationId: createWeightEntry
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateWeightRecordRequest'
+      responses:
+        '201':
+          description: Weight record created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WeightRecord'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+    get:
+      summary: Get all weight records
+      description: returns the weight records saved for a person
+      operationId: getAllWeightRecords
+      responses:
+        '200':
+          description: Array of all weight records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/WeightRecord'
+
+  /weights/{entryId}:
+    parameters:
+      - $ref: '#/components/parameters/entryId'
+
+components:
+  schemas:
+    CreateWeightRecordRequest:
+      type: object
+      required:
+        - name
+        - weight
+        - date
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: Name of person
+        weight:
+          type: number
+          format: float
+          minimum: 20
+          maximum: 300
+          description: Weight in kilograms
+        date:
+          type: string
+          format: date
+          description: Date of weight entry
+
+
+    WeightRecord:
+      type: object
+      required:
+        - id
+        - name
+        - weight
+        - startSelectionDate
+        - endSelectionDate
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique ID of the entry
+          readOnly: true
+        name:
+          type: string
+          description: Name of person
+        weight:
+          type: number
+          format: float
+          description: Weight in Kilograms
+        startSelectionDate:
+          type: string
+          format: date
+          description: Start date for selection
+        endSelectionDate:
+          type: string
+          format: date
+          description: End date for selection
+
+    CreateWeightRecordResponse:
+      type: object
+      required:
+      - recordId
+      properties:
+        group:
+        $ref: '#/components/schemas/WeightRecord'
+
+  parameters:
+    entryId:
+      name: entryId
+      in: path
+      required: true
+      description: Eindeutige ID eines Gewichtseintrags
+      schema:
+        type: string
+        format: uuid
+
+  responses:
+    BadRequest:
+      description: Request data is invalid.
+    NotFound:
+      description: Resource not found.
