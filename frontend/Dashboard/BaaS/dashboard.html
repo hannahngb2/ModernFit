@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Coach Dashboard</title>
+    <link rel="stylesheet" href="dashboard.css" />
+</head>
+<body>
+<div class="app-shell">
+    <aside class="sidebar">
+
+        <!-- Ist die Einbindung der ICONS per svg in ordnung oder gibt es bessere Lösungen? -->
+        <button class="nav-btn" aria-label="Profil">
+            <svg viewBox="0 0 24 24"><path d="M12 12c2.76 0 5-2.24 5-5S14.76 2 12 2 7 4.24 7 7s2.24 5 5 5Zm0 2c-3.33 0-10 1.67-10 5v3h20v-3c0-3.33-6.67-5-10-5Z"/></svg>
+        </button>
+        <button class="nav-btn active" aria-label="Home">
+            <svg viewBox="0 0 24 24"><path d="M12 3 3 10v11h6v-7h6v7h6V10l-9-7Z"/></svg>
+        </button>
+        <button class="nav-btn" aria-label="Nachrichten">
+            <svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H8l-4 4V6a2 2 0 0 1 2-2Z"/></svg>
+        </button>
+        <button class="nav-btn" aria-label="Einstellungen">
+            <svg viewBox="0 0 24 24"><path d="M19.14,12.94a7.49,7.49,0,0,0,.05-.94,7.49,7.49,0,0,0-.05-.94l2.11-1.65a.5.5,0,0,0,.12-.64l-2-3.46a.5.5,0,0,0-.6-.22l-2.49,1a7.28,7.28,0,0,0-1.63-.94l-.38-2.65A.5.5,0,0,0,13.78,2H10.22a.5.5,0,0,0-.49.42L9.35,5.07a7.28,7.28,0,0,0-1.63.94l-2.49-1a.5.5,0,0,0-.6.22l-2,3.46a.5.5,0,0,0,.12.64L4.86,11.06a7.49,7.49,0,0,0-.05.94,7.49,7.49,0,0,0,.05.94L2.75,14.59a.5.5,0,0,0-.12.64l2,3.46a.5.5,0,0,0,.6.22l2.49-1a7.28,7.28,0,0,0,1.63.94l.38,2.65a.5.5,0,0,0,.49.42h3.56a.5.5,0,0,0,.49-.42l.38-2.65a7.28,7.28,0,0,0,1.63-.94l2.49,1a.5.5,0,0,0,.6-.22l2-3.46a.5.5,0,0,0-.12-.64ZM12,15.5A3.5,3.5,0,1,1,15.5,12,3.5,3.5,0,0,1,12,15.5Z"/></svg>
+        </button>
+    </aside>
+
+    <main class="content">
+        <section class="welcome">
+            <h1>Willkommen zurück, </h1>
+            <p>Behalte deinen Fortschritt im Auge.</p>
+        </section>
+
+        <section class="dashboard">
+            <article class="card">
+                <h2>Gewicht</h2>
+                <div class="weight-row">
+                    <div class="weight-box">
+                        <div class="weight-number" id="weightValue"></div>
+                    </div>
+                    <div class="weight-unit">kg</div>
+                </div>
+                <div class="meta">Letzte Messung: <span id="lastMeasurement"></span></div>
+
+                <div class="input-section">
+                    <label for="weightInput">Neues Gewicht eingeben:</label><br>
+                    <input type="text" id="weightInput" placeholder="Gewicht eingeben">
+                    <button id="saveBtn">Speichern</button>
+                </div>
+            </article>
+
+            <article class="card">
+                <div class="chart-top">
+                    <h2>Fortschritt Gewichtsverlauf</h2>
+                    <select id="chartFilter" class="badge">
+                        <option value="7">Weekly</option>
+                        <option value="30">Monthly</option>
+                        <option value="365">Jährlich</option>
+                    </select>
+                </div>
+
+                <div class="chart-wrap">
+                    <svg class="chart-svg" viewBox="0 0 760 270" xmlns="http://www.w3.org/2000/svg" aria-label="Gewichtsverlauf">
+                        <defs>
+                            <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" class="line-gradient-stop-1" />
+                                <stop offset="55%" class="line-gradient-stop-2" />
+                                <stop offset="100%" class="line-gradient-stop-3" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+            </article>
+        </section>
+    </main>
+</div>
+<script type="module" src="dashboard.js"></script>
+</body>
+</html>
