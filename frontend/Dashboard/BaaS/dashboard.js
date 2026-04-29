@@ -89,11 +89,18 @@ document.addEventListener("DOMContentLoaded", async function () {
   // --------- Grafische Darstellung -----------
 
   async function loadWeightChart() {
-    const { data, error } = await supabase
+    const days = parseInt(document.getElementById('chartFilter').value)
+    const since = new Date()
+    since.setDate(since.getDate() - days)
+
+    let { data, error } = await supabase
       .from('weight_data')
       .select('weight, created_at')
       .eq('personal_id', PERSONAL_ID)
+      .gte('created_at', since.toISOString())
       .order('created_at', { ascending: true })
+
+
 
     if (error || !data || data.length === 0) return
 
@@ -174,4 +181,5 @@ document.addEventListener("DOMContentLoaded", async function () {
   input.addEventListener("keydown", e => {
     if (e.key === "Enter") saveWeight()
   })
+  document.getElementById('chartFilter').addEventListener('change', loadWeightChart)
 })
