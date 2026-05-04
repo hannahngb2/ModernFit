@@ -7,8 +7,8 @@ info:
     name: Modern Fit Team
   version: 1.0.0
 
-servers:
-  - url: https://nmgjngnraiebrhovxpay.supabase.co/functions/v1/api
+//servers:
+ // - url: https://nmgjngnraiebrhovxpay.supabase.co/functions/v1/api
 
 paths:
   /weights:
