@@ -43,6 +43,8 @@
         }
 
         .sidebar {
+            position: relative;
+          overflow: visible;
           display: flex;
           flex-direction: column;
           align-items: center;
@@ -68,6 +70,30 @@
           transition: transform .2s ease, background .2s ease, border-color .2s ease;
           backdrop-filter: blur(12px);
         }
+
+        .nav-btn::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            left: 90px; /* etwas weiter raus */
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(20, 24, 50, 0.95);
+            color: #ffffff;
+            padding: 7px 11px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+            z-index: 9999;
+        }
+
+        .nav-btn:hover::after {
+            opacity: 1;
+        }
+
 
         .nav-btn:hover,
         .nav-btn.active {
