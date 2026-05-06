@@ -15,6 +15,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     const data = await response.json();
 
     if (data.length > 0) {
+      data.sort((a, b) => new Date(a.date) - new Date(b.date));
       const latest = data[data.length - 1];
       weightValue.textContent = latest.weight;
       lastMeasurement.textContent = new Date(latest.date).toLocaleDateString("de-DE");
@@ -125,6 +126,8 @@ document.addEventListener("DOMContentLoaded", async function () {
   async function loadWeightChart() {
     const response = await fetch(`${API_BASE_URL}/weights`);
     const data = await response.json();
+
+    data.sort((a, b) => new Date(a.date) - new Date(b.date));
 
     if (!data || data.length === 0) return;
 
