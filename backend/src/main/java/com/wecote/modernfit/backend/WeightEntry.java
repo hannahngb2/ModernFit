@@ -20,7 +20,6 @@ public class WeightEntry {
     public String getId() {
         return id;
     }
-    http://localhost:63342/ModernFit/frontend/Dashboard/OwnServer/dashboard.html?_ijt=ce1mjoppmvjtdtqoj6duk88j4t&_ij_reload=RELOAD_ON_SAVE
     public String getName() {
         return name;
     }
