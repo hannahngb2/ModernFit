@@ -10,12 +10,12 @@ document.addEventListener("DOMContentLoaded", async function () {
   const filterSelect = document.getElementById("chartFilter");
 
   await loadLatestWeight();
-  await loadWeightChart(filterSelect ? filterSelect.value : "jährlich");
+  await loadWeightChart(filterSelect ? parseInt(filterSelect.value) : 365);
 
   // Bei Änderung des Dropdowns Chart neu laden
   if (filterSelect) {
     filterSelect.addEventListener("change", async () => {
-      await loadWeightChart(filterSelect.value);
+      await loadWeightChart(parseInt(filterSelect.value));
     });
   }
 
@@ -73,7 +73,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     lastMeasurement.textContent = new Date().toLocaleDateString("de-DE");
     input.value = "";
 
-    await loadWeightChart(filterSelect ? filterSelect.value : "jährlich");
+    await loadWeightChart(filterSelect ? parseInt(filterSelect.value) : 365);
   }
 
   // Motivationsnachricht anzeigen
@@ -130,107 +130,122 @@ document.addEventListener("DOMContentLoaded", async function () {
     }, 8000);
   }
 
-  // Filtert Daten je nach ausgewähltem Zeitraum
-  function filterData(data, mode) {
+  // Filtert Daten je nach ausgewähltem Zeitraum (days = 7, 30 oder 365)
+  function filterData(data, days) {
     const now = new Date();
-    let cutoff;
-
-    if (mode === "wöchentlich") {
-      // Letzte 7 Tage
-      cutoff = new Date(now);
-      cutoff.setDate(now.getDate() - 7);
-    } else if (mode === "monatlich") {
-      // Letzte 30 Tage
-      cutoff = new Date(now);
-      cutoff.setDate(now.getDate() - 30);
-    } else {
-      // Jährlich: letztes Jahr (365 Tage)
-      cutoff = new Date(now);
-      cutoff.setFullYear(now.getFullYear() - 1);
-    }
-
+    const cutoff = new Date(now);
+    cutoff.setDate(now.getDate() - days);
     return data.filter(d => new Date(d.date) >= cutoff);
   }
 
-  async function loadWeightChart() {
-      const response = await fetch(`${API_BASE_URL}/weights`);
-      const data = await response.json();
+  async function loadWeightChart(days = 365) {
+    const response = await fetch(`${API_BASE_URL}/weights`);
+    const allData = await response.json();
 
-      if (error || !data || data.length === 0) return
+    allData.sort((a, b) => new Date(a.date) - new Date(b.date));
 
+    // Daten nach gewähltem Zeitraum filtern
+    const data = filterData(allData, days);
 
-      // Alte statische Elemente entfernen
-      svg.querySelectorAll('.chart-line, .point, .axis-label, .grid-line').forEach(el => el.remove())
+    const svg = document.querySelector(".chart-svg");
+    svg.querySelectorAll(".chart-line, .point, .axis-label, .grid-line, .no-data-msg").forEach(el => el.remove());
 
-      // Chart-Dimensionen
-      const W = 760, H = 270
-      const padL = 40, padR = 40, padT = 35, padB = 70
-
-      const weights  = data.map(d => d.weight)
-      const minW     = Math.min(...weights) - 5
-      const maxW     = Math.max(...weights) + 5
-      const n        = data.length
-
-      // X/Y Koordinaten berechnen
-      const points = data.map((d, i) => {
-        const x = padL + (i / (n - 1 || 1)) * (W - padL - padR)
-        const y = padT + (1 - (d.weight - minW) / (maxW - minW)) * (H - padT - padB)
-        return { x, y, weight: d.weight, date: new Date(d.created_at) }
-      })
-
-      // Grid-Linien
-      points.forEach(p => {
-        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-        line.setAttribute("x1", p.x);
-        line.setAttribute("y1", padT);
-        line.setAttribute("x2", p.x);
-        line.setAttribute("y2", H - padB);
-        line.setAttribute("class", "grid-line");
-        svg.appendChild(line);
-      });
-
-      // Smooth Kurve (Bezier)
-      let d = `M${points[0].x} ${points[0].y}`
-      for (let i = 1; i < points.length; i++) {
-        const prev = points[i - 1], curr = points[i]
-        const cx   = (prev.x + curr.x) / 2
-        d += ` C${cx} ${prev.y}, ${cx} ${curr.y}, ${curr.x} ${curr.y}`
-      }
-      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path')
-      path.setAttribute('d', d)
-      path.setAttribute('class', 'chart-line')
-      svg.appendChild(path)
-
-      // Punkte + Labels
-      points.forEach((p, i) => {
-        const isLast = i === points.length - 1
-
-        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
-        circle.setAttribute('cx', p.x)
-        circle.setAttribute('cy', p.y)
-        circle.setAttribute('r',  isLast ? 12 : 10)
-        circle.setAttribute('class', isLast ? 'point last' : 'point')
-        svg.appendChild(circle)
-
-        // Datum unter dem Punkt
-        const label = document.createElementNS('http://www.w3.org/2000/svg', 'text')
-        label.setAttribute('x', p.x)
-        label.setAttribute('y', H - padB + 30)
-        label.setAttribute('class', 'axis-label')
-        label.setAttribute('text-anchor', 'middle')
-        label.textContent = p.date.toLocaleDateString('de-DE', { day:'2-digit', month:'2-digit' })
-        svg.appendChild(label)
-
-        // Gewicht über dem Punkt
-        const wLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text')
-        wLabel.setAttribute('x', p.x)
-        wLabel.setAttribute('y', p.y - 16)
-        wLabel.setAttribute('class', 'axis-label')
-        wLabel.setAttribute('text-anchor', 'middle')
-        wLabel.textContent = `${p.weight} kg`
-        svg.appendChild(wLabel)
-      })
+    // Keine Daten im Zeitraum: Hinweis anzeigen
+    if (!data || data.length === 0) {
+      const msg = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      msg.setAttribute("x", "50%");
+      msg.setAttribute("y", "50%");
+      msg.setAttribute("text-anchor", "middle");
+      msg.setAttribute("dominant-baseline", "middle");
+      msg.setAttribute("class", "no-data-msg");
+      msg.setAttribute("fill", "rgba(255,255,255,0.4)");
+      msg.setAttribute("font-size", "16");
+      msg.textContent = "Keine Daten für diesen Zeitraum";
+      svg.appendChild(msg);
+      return;
     }
+
+    const W = 760, H = 270;
+    const padL = 40, padR = 40, padT = 35, padB = 70;
+
+    const weights = data.map(d => d.weight);
+    const minW = Math.min(...weights) - 5;
+    const maxW = Math.max(...weights) + 5;
+    const n = data.length;
+
+    const points = data.map((d, i) => {
+      const x = padL + (i / (n - 1 || 1)) * (W - padL - padR);
+      const y = padT + (1 - (d.weight - minW) / (maxW - minW)) * (H - padT - padB);
+      return { x, y, weight: d.weight, date: new Date(d.date) };
+    });
+
+    // Vertikale Gitterlinien
+    points.forEach(p => {
+      const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      line.setAttribute("x1", p.x);
+      line.setAttribute("y1", padT);
+      line.setAttribute("x2", p.x);
+      line.setAttribute("y2", H - padB);
+      line.setAttribute("class", "grid-line");
+      svg.appendChild(line);
+    });
+
+    // Kurve (Bézier)
+    let dPath = `M${points[0].x} ${points[0].y}`;
+    for (let i = 1; i < points.length; i++) {
+      const prev = points[i - 1];
+      const curr = points[i];
+      const cx = (prev.x + curr.x) / 2;
+      dPath += ` C${cx} ${prev.y}, ${cx} ${curr.y}, ${curr.x} ${curr.y}`;
+    }
+
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttribute("d", dPath);
+    path.setAttribute("class", "chart-line");
+    svg.appendChild(path);
+
+    // Datumformat je nach Modus
+    function formatDate(date, days) {
+      if (days === 7) {
+        // Wochentag + Tag
+        return date.toLocaleDateString("de-DE", { weekday: "short", day: "2-digit" });
+      } else if (days === 30) {
+        // Tag + Monat
+        return date.toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit" });
+      } else {
+        // Jährlich: Tag + Monat
+        return date.toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit" });
+      }
+    }
+
+    // Punkte & Labels
+    points.forEach((p, i) => {
+      const isLast = i === points.length - 1;
+
+      const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      circle.setAttribute("cx", p.x);
+      circle.setAttribute("cy", p.y);
+      circle.setAttribute("r", isLast ? 12 : 10);
+      circle.setAttribute("class", isLast ? "point last" : "point");
+      svg.appendChild(circle);
+
+      const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      label.setAttribute("x", p.x);
+      label.setAttribute("y", H - padB + 30);
+      label.setAttribute("class", "axis-label");
+      label.setAttribute("text-anchor", "middle");
+      label.textContent = formatDate(p.date, days);
+      svg.appendChild(label);
+
+      const wLabel = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      wLabel.setAttribute("x", p.x);
+      wLabel.setAttribute("y", p.y - 16);
+      wLabel.setAttribute("class", "axis-label");
+      wLabel.setAttribute("text-anchor", "middle");
+      wLabel.textContent = `${p.weight} kg`;
+      svg.appendChild(wLabel);
+    });
+  }
 
   button.addEventListener("click", saveWeight);
   input.addEventListener("keydown", e => {
