@@ -6,8 +6,18 @@ document.addEventListener("DOMContentLoaded", async function () {
   const input = document.getElementById("weightInput");
   const button = document.getElementById("saveBtn");
 
+  // Dropdown-Element (pass auf, dass die ID im HTML stimmt)
+  const filterSelect = document.getElementById("chartFilter");
+
   await loadLatestWeight();
-  await loadWeightChart();
+  await loadWeightChart(filterSelect ? filterSelect.value : "jährlich");
+
+  // Bei Änderung des Dropdowns Chart neu laden
+  if (filterSelect) {
+    filterSelect.addEventListener("change", async () => {
+      await loadWeightChart(filterSelect.value);
+    });
+  }
 
   // GET latest weight
   async function loadLatestWeight() {
@@ -63,10 +73,10 @@ document.addEventListener("DOMContentLoaded", async function () {
     lastMeasurement.textContent = new Date().toLocaleDateString("de-DE");
     input.value = "";
 
-    await loadWeightChart();
+    await loadWeightChart(filterSelect ? filterSelect.value : "jährlich");
   }
 
-  //  Motivationsnachricht anzeigen
+  // Motivationsnachricht anzeigen
   function showMotivation(diff) {
     const messages = [
       `Super Erfolg! ${diff} KG weniger. Weiter so! 💪`,
@@ -77,7 +87,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     ];
     const text = messages[Math.floor(Math.random() * messages.length)];
 
-    // Altes Toast entfernen falls vorhanden
     const existing = document.getElementById("motivationToast");
     if (existing) existing.remove();
 
@@ -107,7 +116,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     document.body.appendChild(toast);
 
-    // Einblenden
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         toast.style.opacity = "1";
@@ -115,7 +123,6 @@ document.addEventListener("DOMContentLoaded", async function () {
       });
     });
 
-    // Nach 8 Sekunden den Toast wieder ausblenden
     setTimeout(() => {
       toast.style.opacity = "0";
       toast.style.transform = "translateX(-50%) translateY(20px)";
@@ -123,16 +130,54 @@ document.addEventListener("DOMContentLoaded", async function () {
     }, 8000);
   }
 
-  async function loadWeightChart() {
+  // Filtert Daten je nach ausgewähltem Zeitraum
+  function filterData(data, mode) {
+    const now = new Date();
+    let cutoff;
+
+    if (mode === "wöchentlich") {
+      // Letzte 7 Tage
+      cutoff = new Date(now);
+      cutoff.setDate(now.getDate() - 7);
+    } else if (mode === "monatlich") {
+      // Letzte 30 Tage
+      cutoff = new Date(now);
+      cutoff.setDate(now.getDate() - 30);
+    } else {
+      // Jährlich: letztes Jahr (365 Tage)
+      cutoff = new Date(now);
+      cutoff.setFullYear(now.getFullYear() - 1);
+    }
+
+    return data.filter(d => new Date(d.date) >= cutoff);
+  }
+
+  async function loadWeightChart(mode = "jährlich") {
     const response = await fetch(`${API_BASE_URL}/weights`);
-    const data = await response.json();
+    const allData = await response.json();
 
-    data.sort((a, b) => new Date(a.date) - new Date(b.date));
+    allData.sort((a, b) => new Date(a.date) - new Date(b.date));
 
-    if (!data || data.length === 0) return;
+    // Daten nach gewähltem Zeitraum filtern
+    const data = filterData(allData, mode);
 
     const svg = document.querySelector(".chart-svg");
-    svg.querySelectorAll(".chart-line, .point, .axis-label, .grid-line").forEach(el => el.remove());
+    svg.querySelectorAll(".chart-line, .point, .axis-label, .grid-line, .no-data-msg").forEach(el => el.remove());
+
+    // Keine Daten im Zeitraum: Hinweis anzeigen
+    if (!data || data.length === 0) {
+      const msg = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      msg.setAttribute("x", "50%");
+      msg.setAttribute("y", "50%");
+      msg.setAttribute("text-anchor", "middle");
+      msg.setAttribute("dominant-baseline", "middle");
+      msg.setAttribute("class", "no-data-msg");
+      msg.setAttribute("fill", "rgba(255,255,255,0.4)");
+      msg.setAttribute("font-size", "16");
+      msg.textContent = "Keine Daten für diesen Zeitraum";
+      svg.appendChild(msg);
+      return;
+    }
 
     const W = 760, H = 270;
     const padL = 40, padR = 40, padT = 35, padB = 70;
@@ -148,6 +193,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       return { x, y, weight: d.weight, date: new Date(d.date) };
     });
 
+    // Vertikale Gitterlinien
     points.forEach(p => {
       const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
       line.setAttribute("x1", p.x);
@@ -158,6 +204,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       svg.appendChild(line);
     });
 
+    // Kurve (Bézier)
     let dPath = `M${points[0].x} ${points[0].y}`;
     for (let i = 1; i < points.length; i++) {
       const prev = points[i - 1];
@@ -171,6 +218,21 @@ document.addEventListener("DOMContentLoaded", async function () {
     path.setAttribute("class", "chart-line");
     svg.appendChild(path);
 
+    // Datumformat je nach Modus
+    function formatDate(date, mode) {
+      if (mode === "wöchentlich") {
+        // Wochentag + Tag
+        return date.toLocaleDateString("de-DE", { weekday: "short", day: "2-digit" });
+      } else if (mode === "monatlich") {
+        // Tag + Monat
+        return date.toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit" });
+      } else {
+        // Monat + Jahr (kurz)
+        return date.toLocaleDateString("de-DE", { month: "2-digit", day: "2-digit" });
+      }
+    }
+
+    // Punkte & Labels
     points.forEach((p, i) => {
       const isLast = i === points.length - 1;
 
@@ -186,7 +248,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       label.setAttribute("y", H - padB + 30);
       label.setAttribute("class", "axis-label");
       label.setAttribute("text-anchor", "middle");
-      label.textContent = p.date.toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit" });
+      label.textContent = formatDate(p.date, mode);
       svg.appendChild(label);
 
       const wLabel = document.createElementNS("http://www.w3.org/2000/svg", "text");
