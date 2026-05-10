@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   await loadLatestWeight();
   await loadWeightChart();
 
-  // 🔹 GET latest weight
+  // GET latest weight
   async function loadLatestWeight() {
     const response = await fetch(`${API_BASE_URL}/weights`);
     const data = await response.json();
@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
   }
 
-  // 🔹 POST new weight
+  // POST new weight
   async function saveWeight() {
     const value = parseFloat(input.value.replace(",", "."));
 
@@ -73,7 +73,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       `Wahnsinn! Du hast ${diff} KG abgenommen!✨`,
       `${diff} KG runter. Du rockst das!🏋️‍♂️`,
       `Fantastisch! Minus ${diff} KG!  Jetzt nur nicht nachlassen!☝️`,
-      `Meli, du bist unaufhaltbar! ${diff} KG weniger!🏆`
+      `Dieter, du bist unaufhaltbar! ${diff} KG weniger!🏆`
     ];
     const text = messages[Math.floor(Math.random() * messages.length)];
 
