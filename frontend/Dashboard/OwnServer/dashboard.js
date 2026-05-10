@@ -1,35 +1,28 @@
-const API_BASE_URL = "http://localhost:8080";
+const API_BASE_URL = "";
 
 document.addEventListener("DOMContentLoaded", async function () {
-  const weightValue     = document.getElementById("weightValue");
+  const weightValue = document.getElementById("weightValue");
   const lastMeasurement = document.getElementById("lastMeasurement");
-  const input           = document.getElementById("weightInput");
-  const button          = document.getElementById("saveBtn");
-  const filterSelect    = document.getElementById("chartFilter");
-  const svg             = document.querySelector(".chart-svg");
+  const input = document.getElementById("weightInput");
+  const button = document.getElementById("saveBtn");
 
   await loadLatestWeight();
-  await loadWeightChart(parseInt(filterSelect.value));
+  await loadWeightChart();
 
-  // Bei Änderung des Dropdowns Chart neu laden
-  filterSelect.addEventListener("change", () => {
-    loadWeightChart(parseInt(filterSelect.value));
-  });
-
-  // ── Letztes Gewicht laden ──────────────────────────────────────
+  // GET latest weight
   async function loadLatestWeight() {
     const response = await fetch(`${API_BASE_URL}/weights`);
     const data = await response.json();
 
-    if (data && data.length > 0) {
-      data.sort((a, b) => new Date(b.date) - new Date(a.date));
-      const latest = data[0];
-      weightValue.textContent     = latest.weight;
+    if (data.length > 0) {
+      data.sort((a, b) => new Date(a.date) - new Date(b.date));
+      const latest = data[data.length - 1];
+      weightValue.textContent = latest.weight;
       lastMeasurement.textContent = new Date(latest.date).toLocaleDateString("de-DE");
     }
   }
 
-  // ── Neues Gewicht speichern ────────────────────────────────────
+  // POST new weight
   async function saveWeight() {
     const value = parseFloat(input.value.replace(",", "."));
 
@@ -37,6 +30,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       alert("Bitte ein gültiges Gewicht eingeben.");
       return;
     }
+
     if (value < 0 || value > 200) {
       alert("Das Gewicht muss zwischen 0 und 200 kg liegen.");
       return;
@@ -44,7 +38,9 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     const response = await fetch(`${API_BASE_URL}/weights`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json"
+      },
       body: JSON.stringify({
         name: "Dieter",
         weight: value,
@@ -59,27 +55,29 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     const previousWeight = parseFloat(weightValue.textContent);
     if (!isNaN(previousWeight) && value < previousWeight) {
-      showMotivation((previousWeight - value).toFixed(1));
+      const diff = (previousWeight - value).toFixed(1);
+      showMotivation(diff);
     }
 
-    weightValue.textContent     = value;
+    weightValue.textContent = value;
     lastMeasurement.textContent = new Date().toLocaleDateString("de-DE");
     input.value = "";
 
-    await loadWeightChart(parseInt(filterSelect.value));
+    await loadWeightChart();
   }
 
-  // ── Motivationsnachricht ───────────────────────────────────────
+  //  Motivationsnachricht anzeigen
   function showMotivation(diff) {
     const messages = [
       `Super Erfolg! ${diff} KG weniger. Weiter so! 💪`,
-      `Wahnsinn! Du hast ${diff} KG abgenommen! ✨`,
-      `${diff} KG runter. Du rockst das! 🏋️‍♂️`,
-      `Fantastisch! Minus ${diff} KG! Jetzt nur nicht nachlassen! ☝️`,
-      `Dieter, du bist unaufhaltbar! ${diff} KG weniger! 🏆`
+      `Wahnsinn! Du hast ${diff} KG abgenommen!✨`,
+      `${diff} KG runter. Du rockst das!🏋️‍♂️`,
+      `Fantastisch! Minus ${diff} KG!  Jetzt nur nicht nachlassen!☝️`,
+      `Dieter, du bist unaufhaltbar! ${diff} KG weniger!🏆`
     ];
     const text = messages[Math.floor(Math.random() * messages.length)];
 
+    // Altes Toast entfernen falls vorhanden
     const existing = document.getElementById("motivationToast");
     if (existing) existing.remove();
 
@@ -106,8 +104,10 @@ document.addEventListener("DOMContentLoaded", async function () {
       transition: opacity 0.4s ease, transform 0.4s ease;
       white-space: nowrap;
     `;
+
     document.body.appendChild(toast);
 
+    // Einblenden
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         toast.style.opacity = "1";
@@ -115,6 +115,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       });
     });
 
+    // Nach 8 Sekunden den Toast wieder ausblenden
     setTimeout(() => {
       toast.style.opacity = "0";
       toast.style.transform = "translateX(-50%) translateY(20px)";
@@ -122,52 +123,24 @@ document.addEventListener("DOMContentLoaded", async function () {
     }, 8000);
   }
 
-  // ── Daten nach Zeitraum filtern ────────────────────────────────
-  function filterData(data, days) {
-    const cutoff = new Date();
-    cutoff.setDate(cutoff.getDate() - days);
-    return data.filter(d => new Date(d.date) >= cutoff);
-  }
-
-  // ── Chart laden & zeichnen ─────────────────────────────────────
-  async function loadWeightChart(days = 365) {
+  async function loadWeightChart() {
     const response = await fetch(`${API_BASE_URL}/weights`);
-    const allData  = await response.json();
+    const data = await response.json();
 
-    if (!allData || allData.length === 0) return;
+    data.sort((a, b) => new Date(a.date) - new Date(b.date));
 
-    // Aufsteigend nach Datum sortieren
-    allData.sort((a, b) => new Date(a.date) - new Date(b.date));
+    if (!data || data.length === 0) return;
 
-    // Nach gewähltem Zeitraum filtern
-    const data = filterData(allData, days);
-
-    // Alte Elemente entfernen
-    svg.querySelectorAll(".chart-line, .point, .axis-label, .grid-line, .no-data-msg")
-       .forEach(el => el.remove());
-
-    // Keine Daten im Zeitraum → Hinweis
-    if (data.length === 0) {
-      const msg = document.createElementNS("http://www.w3.org/2000/svg", "text");
-      msg.setAttribute("x", "50%");
-      msg.setAttribute("y", "50%");
-      msg.setAttribute("text-anchor", "middle");
-      msg.setAttribute("dominant-baseline", "middle");
-      msg.setAttribute("class", "no-data-msg");
-      msg.setAttribute("fill", "rgba(255,255,255,0.4)");
-      msg.setAttribute("font-size", "16");
-      msg.textContent = "Keine Daten für diesen Zeitraum";
-      svg.appendChild(msg);
-      return;
-    }
+    const svg = document.querySelector(".chart-svg");
+    svg.querySelectorAll(".chart-line, .point, .axis-label, .grid-line").forEach(el => el.remove());
 
     const W = 760, H = 270;
     const padL = 40, padR = 40, padT = 35, padB = 70;
 
     const weights = data.map(d => d.weight);
-    const minW    = Math.min(...weights) - 5;
-    const maxW    = Math.max(...weights) + 5;
-    const n       = data.length;
+    const minW = Math.min(...weights) - 5;
+    const maxW = Math.max(...weights) + 5;
+    const n = data.length;
 
     const points = data.map((d, i) => {
       const x = padL + (i / (n - 1 || 1)) * (W - padL - padR);
@@ -175,7 +148,6 @@ document.addEventListener("DOMContentLoaded", async function () {
       return { x, y, weight: d.weight, date: new Date(d.date) };
     });
 
-    // Grid-Linien
     points.forEach(p => {
       const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
       line.setAttribute("x1", p.x);
@@ -186,19 +158,19 @@ document.addEventListener("DOMContentLoaded", async function () {
       svg.appendChild(line);
     });
 
-    // Smooth Kurve (Bézier)
     let dPath = `M${points[0].x} ${points[0].y}`;
     for (let i = 1; i < points.length; i++) {
-      const prev = points[i - 1], curr = points[i];
+      const prev = points[i - 1];
+      const curr = points[i];
       const cx = (prev.x + curr.x) / 2;
       dPath += ` C${cx} ${prev.y}, ${cx} ${curr.y}, ${curr.x} ${curr.y}`;
     }
+
     const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
     path.setAttribute("d", dPath);
     path.setAttribute("class", "chart-line");
     svg.appendChild(path);
 
-    // Punkte + Labels
     points.forEach((p, i) => {
       const isLast = i === points.length - 1;
 
@@ -214,9 +186,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       label.setAttribute("y", H - padB + 30);
       label.setAttribute("class", "axis-label");
       label.setAttribute("text-anchor", "middle");
-      label.textContent = days === 7
-        ? p.date.toLocaleDateString("de-DE", { weekday: "short", day: "2-digit" })
-        : p.date.toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit" });
+      label.textContent = p.date.toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit" });
       svg.appendChild(label);
 
       const wLabel = document.createElementNS("http://www.w3.org/2000/svg", "text");
