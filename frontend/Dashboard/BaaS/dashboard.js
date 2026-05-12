@@ -1,11 +1,6 @@
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
-
-const SUPABASE_URL = 'https://gngmaibtdfcnmqrelwgr.supabase.co'   // ← ersetzen
-const SUPABASE_KEY = 'sb_publishable_5cclSCRIX5ewxeZ8rv3FVA_PBApLf3H'                    // ← ersetzen
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
+const API_BASE_URL = "http://localhost:8080";
 
 const PERSONAL_ID = 1
-
 
 document.addEventListener("DOMContentLoaded", async function () {
   const weightValue     = document.getElementById("weightValue")
@@ -20,12 +15,8 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   // ── Letztes Gewicht laden ──────────────────────────────────────
   async function loadLatestWeight() {
-    const { data, error } = await supabase
-      .from('weight_data')
-      .select('weight, created_at')
-      .eq('personal_id', PERSONAL_ID)
-      .order('created_at', { ascending: false })
-      .limit(1)
+    const response = await fetch(`${API_BASE_URL}/weights`);
+    const data = await response.json();
 
     if (error) {
       console.error('Fehler beim Laden:', error.message)
@@ -36,16 +27,16 @@ document.addEventListener("DOMContentLoaded", async function () {
       const latest = data[0]
       weightValue.textContent     = latest.weight
       lastMeasurement.textContent = new Date(latest.created_at)
-        .toLocaleDateString("de-DE")
+          .toLocaleDateString("de-DE")
     }
   }
   //---- Client Name anzeigen ----------------------
   async function loadUserName() {
     const { data, error } = await supabase
-      .from('personal_information')
-      .select('first_name')
-      .eq('id', PERSONAL_ID)
-      .single()
+        .from('personal_information')
+        .select('first_name')
+        .eq('id', PERSONAL_ID)
+        .single()
 
     if (error) {
       console.error('Fehler beim Laden des Namens:', error.message)
@@ -53,7 +44,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
 
     document.querySelector('.welcome h1').textContent =
-      `Willkommen zurück, ${data.first_name}`
+        `Willkommen zurück, ${data.first_name}`
   }
 
   // ── Neues Gewicht speichern ────────────────────────────────────
@@ -69,42 +60,99 @@ document.addEventListener("DOMContentLoaded", async function () {
       return
     }
 
-    const { error } = await supabase
-      .from('weight_data')
-      .insert({ weight: value, personal_id: 1 })
+    const response = await fetch(`${API_BASE_URL}/weights`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        name: "Dieter",
+        weight: value,
+        date: new Date().toISOString().split("T")[0]
+      })
+    });
 
-    if (error) {
-      alert('Fehler beim Speichern: ' + error.message)
-      return
+    if (!response.ok) {
+      alert("Speichern fehlgeschlagen");
+      return;
     }
 
-    // UI aktualisieren
-    weightValue.textContent     = value
-    lastMeasurement.textContent = new Date().toLocaleDateString("de-DE")
-    input.value = ""
+    const previousWeight = parseFloat(weightValue.textContent);
+    if (!isNaN(previousWeight) && value < previousWeight) {
+      const diff = (previousWeight - value).toFixed(1);
+      showMotivation(diff);
+    }
+
+    weightValue.textContent = value;
+    lastMeasurement.textContent = new Date().toLocaleDateString("de-DE");
+    input.value = "";
 
     await loadWeightChart()
+  }
+  function showMotivation(diff) {
+    const messages = [
+      `Super Erfolg! ${diff} KG weniger. Weiter so! 💪`,
+      `Wahnsinn! Du hast ${diff} KG abgenommen!✨`,
+      `${diff} KG runter. Du rockst das!🏋️‍♂️`,
+      `Fantastisch! Minus ${diff} KG!  Jetzt nur nicht nachlassen!☝️`,
+      `Meli, du bist unaufhaltbar! ${diff} KG weniger!🏆`
+    ];
+    const text = messages[Math.floor(Math.random() * messages.length)];
+
+    // Altes Toast entfernen falls vorhanden
+    const existing = document.getElementById("motivationToast");
+    if (existing) existing.remove();
+
+    const toast = document.createElement("div");
+    toast.id = "motivationToast";
+    toast.textContent = text;
+    toast.style.cssText = `
+        position: fixed;
+        bottom: 40px;
+        left: 50%;
+        transform: translateX(-50%) translateY(20px);
+        background: linear-gradient(135deg, rgba(124,108,246,0.92), rgba(46,211,211,0.85));
+        color: #fff;
+        font-family: 'Inter', system-ui, sans-serif;
+        font-size: 1.1rem;
+        font-weight: 700;
+        padding: 18px 32px;
+        border-radius: 999px;
+        border: 1px solid rgba(255,255,255,0.25);
+        box-shadow: 0 16px 48px rgba(0,0,0,0.35);
+        backdrop-filter: blur(16px);
+        z-index: 99999;
+        opacity: 0;
+        transition: opacity 0.4s ease, transform 0.4s ease;
+        white-space: nowrap;
+      `;
+
+    document.body.appendChild(toast);
+
+    // Einblenden
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        toast.style.opacity = "1";
+        toast.style.transform = "translateX(-50%) translateY(0)";
+      });
+    });
+
+    // Nach 8 Sekunden den Toast wieder ausblenden
+    setTimeout(() => {
+      toast.style.opacity = "0";
+      toast.style.transform = "translateX(-50%) translateY(20px)";
+      setTimeout(() => toast.remove(), 400);
+    }, 8000);
   }
 
   // --------- Grafische Darstellung -----------
 
   async function loadWeightChart() {
-    const days = parseInt(document.getElementById('chartFilter').value)
-    const since = new Date()
-    since.setDate(since.getDate() - days)
-
-    let { data, error } = await supabase
-      .from('weight_data')
-      .select('weight, created_at')
-      .eq('personal_id', PERSONAL_ID)
-      .gte('created_at', since.toISOString())
-      .order('created_at', { ascending: true })
-
-
+    const response = await fetch(`${API_BASE_URL}/weights`);
+    const data = await response.json();
 
     if (error || !data || data.length === 0) return
 
-    const svg = document.querySelector('.chart-svg')
 
     // Alte statische Elemente entfernen
     svg.querySelectorAll('.chart-line, .point, .axis-label, .grid-line').forEach(el => el.remove())
@@ -127,12 +175,14 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     // Grid-Linien
     points.forEach(p => {
-      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line')
-      line.setAttribute('x1', p.x); line.setAttribute('y1', padT)
-      line.setAttribute('x2', p.x); line.setAttribute('y2', H - padB)
-      line.setAttribute('class', 'grid-line')
-      svg.appendChild(line)
-    })
+      const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      line.setAttribute("x1", p.x);
+      line.setAttribute("y1", padT);
+      line.setAttribute("x2", p.x);
+      line.setAttribute("y2", H - padB);
+      line.setAttribute("class", "grid-line");
+      svg.appendChild(line);
+    });
 
     // Smooth Kurve (Bezier)
     let d = `M${points[0].x} ${points[0].y}`

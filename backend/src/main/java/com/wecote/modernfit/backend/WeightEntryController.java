@@ -34,8 +34,6 @@ public class WeightEntryController {
 
     @GetMapping
     public List<WeightEntry> getAll() {
-        return repository.findAll()
-                .stream()
-                .sorted((a, b) -> b.getDate().compareTo(a.getDate()))
-                .toList();
+        return repository.findAllByOrderByDateAsc();
     }
+}
