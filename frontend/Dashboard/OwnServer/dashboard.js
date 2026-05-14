@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   const button = document.getElementById("saveBtn");
 
   await loadLatestWeight();
-  await loadWeightChart(parseInt(document.getElementById("chartFilter").value));;
+  await loadWeightChart(parseInt(document.getElementById("chartFilter").value));
 
   // GET latest weight
   async function loadLatestWeight() {
@@ -15,15 +15,15 @@ document.addEventListener("DOMContentLoaded", async function () {
     const data = await response.json();
 
     if (data.length > 0) {
-        data.sort((a, b) => new Date(a.date) - new Date(b.date));
-        const latest = data[data.length - 1];
-        weightValue.textContent = latest.weight;
-        lastMeasurement.textContent = new Date(latest.date).toLocaleDateString("de-DE");
+      data.sort((a, b) => new Date(a.date) - new Date(b.date));
+      const latest = data[data.length - 1];
+      weightValue.textContent = latest.weight;
+      lastMeasurement.textContent = new Date(latest.date).toLocaleDateString("de-DE");
 
-        const firstName = latest.first_name ?? latest.name ?? "Nutzer";
-            document.querySelector(".welcome h1").textContent =
-              `Willkommen zurück, ${firstName}!`;
-      }
+      const firstName = latest.first_name ?? latest.name ?? "Nutzer";
+      document.querySelector(".welcome h1").textContent =
+        `Willkommen zurück, ${firstName}!`;
+    }
   }
 
   // POST new weight
@@ -70,18 +70,17 @@ document.addEventListener("DOMContentLoaded", async function () {
     await loadWeightChart(parseInt(document.getElementById("chartFilter").value));
   }
 
-  //  Motivationsnachricht anzeigen
+  // Motivationsnachricht anzeigen
   function showMotivation(diff) {
     const messages = [
       `Super Erfolg! ${diff} KG weniger. Weiter so! 💪`,
       `Wahnsinn! Du hast ${diff} KG abgenommen!✨`,
       `${diff} KG runter. Du rockst das!🏋️‍♂️`,
-      `Fantastisch! Minus ${diff} KG!  Jetzt nur nicht nachlassen!☝️`,
+      `Fantastisch! Minus ${diff} KG! Jetzt nur nicht nachlassen!☝️`,
       `Du bist unaufhaltbar! ${diff} KG weniger!🏆`
     ];
     const text = messages[Math.floor(Math.random() * messages.length)];
 
-    // Altes Toast entfernen falls vorhanden
     const existing = document.getElementById("motivationToast");
     if (existing) existing.remove();
 
@@ -111,7 +110,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     document.body.appendChild(toast);
 
-    // Einblenden
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         toast.style.opacity = "1";
@@ -119,7 +117,6 @@ document.addEventListener("DOMContentLoaded", async function () {
       });
     });
 
-    // Nach 8 Sekunden den Toast wieder ausblenden
     setTimeout(() => {
       toast.style.opacity = "0";
       toast.style.transform = "translateX(-50%) translateY(20px)";
@@ -127,17 +124,19 @@ document.addEventListener("DOMContentLoaded", async function () {
     }, 8000);
   }
 
-  async function loadWeightChart() {
+  // ✅ days-Parameter ergänzt, let statt const für data
+  async function loadWeightChart(days = 7) {
     const response = await fetch(`${API_BASE_URL}/weights`);
-    const data = await response.json();
+    let data = await response.json();
 
     data.sort((a, b) => new Date(a.date) - new Date(b.date));
 
-    if (!data || data.length === 0) return;
-
+    // Filter anwenden
     const cutoff = new Date();
-        cutoff.setDate(cutoff.getDate() - days);
-        data = data.filter(d => new Date(d.date) >= cutoff);
+    cutoff.setDate(cutoff.getDate() - days);
+    data = data.filter(d => new Date(d.date) >= cutoff);
+
+    if (!data || data.length === 0) return;
 
     const svg = document.querySelector(".chart-svg");
     svg.querySelectorAll(".chart-line, .point, .axis-label, .grid-line").forEach(el => el.remove());
@@ -213,6 +212,6 @@ document.addEventListener("DOMContentLoaded", async function () {
   });
 
   document.getElementById("chartFilter").addEventListener("change", e => {
-      loadWeightChart(parseInt(e.target.value));
-    });
+    loadWeightChart(parseInt(e.target.value));
+  });
 });
