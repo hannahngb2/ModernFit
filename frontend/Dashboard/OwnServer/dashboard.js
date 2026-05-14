@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   const input = document.getElementById("weightInput");
   const button = document.getElementById("saveBtn");
 
-  let currentUserName = "Stefan";
+  let currentUserName = "";
 
   await loadLatestWeight();
   await loadWeightChart(parseInt(document.getElementById("chartFilter").value));
@@ -23,6 +23,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       lastMeasurement.textContent = new Date(latest.date).toLocaleDateString("de-DE");
 
       const firstName = latest.first_name ?? latest.name ?? "";
+      currentUserName = firstName;
       document.querySelector(".welcome h1").textContent =
         `Willkommen zurück, ${firstName}!`;
     }
@@ -46,7 +47,7 @@ document.addEventListener("DOMContentLoaded", async function () {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            name: currentUserName, // statt "Dieter"
+            name: currentUserName,
             weight: value,
             date: new Date().toISOString().split("T")[0]
           })
