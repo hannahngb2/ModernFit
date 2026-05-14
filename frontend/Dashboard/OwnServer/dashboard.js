@@ -124,15 +124,20 @@ document.addEventListener("DOMContentLoaded", async function () {
     }, 8000);
   }
 
-  async function loadWeightChart() {
-    const response = await fetch(`${API_BASE_URL}/weights`);
-    let data = await response.json();
+  async function loadWeightChart(days = 30) {
+      const response = await fetch(`${API_BASE_URL}/weights`);
+      let data = await response.json();
 
-    data.sort((a, b) => new Date(a.date) - new Date(b.date));
+      data.sort((a, b) => new Date(a.date) - new Date(b.date));
 
-    if (!data || data.length === 0) return;
+      const cutoff = new Date();
+      cutoff.setDate(cutoff.getDate() - days);
+      data = data.filter(d => new Date(d.date) >= cutoff);
 
-    svg.querySelectorAll('.chart-line, .point, .axis-label, .grid-line').forEach(el => el.remove())
+      const svg = document.querySelector(".chart-svg");
+      svg.querySelectorAll(".chart-line, .point, .axis-label, .grid-line").forEach(el => el.remove());
+
+      if (data.length === 0) return;
 
     const W = 760, H = 270;
     const padL = 40, padR = 40, padT = 35, padB = 70;
