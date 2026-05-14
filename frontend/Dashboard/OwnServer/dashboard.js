@@ -1,4 +1,5 @@
 const API_BASE_URL = "/api";
+const CURRENT_USER_ID = "816e78b3-355f-4e8f-96b7-cbf184f14c31";
 
 document.addEventListener("DOMContentLoaded", async function () {
   const weightValue = document.getElementById("weightValue");
@@ -47,7 +48,7 @@ document.addEventListener("DOMContentLoaded", async function () {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            name: currentUserName,
+            name: CURRENT_USER_ID,
             weight: value,
             date: new Date().toISOString().split("T")[0]
           })
@@ -126,7 +127,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   }
 
   async function loadWeightChart(days = 30) {
-      const response = await fetch(`${API_BASE_URL}/weights`);
+      const response = await fetch(`${API_BASE_URL}/weights?personalInformationId=${currentUserId}`);
       let data = await response.json();
 
       data.sort((a, b) => new Date(a.date) - new Date(b.date));

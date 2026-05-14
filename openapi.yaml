@@ -55,15 +55,14 @@ components:
     CreateWeightRecordRequest:
       type: object
       required:
-        - name
+        - uuid
         - weight
         - date
       properties:
-        name:
+        uuid:
           type: string
-          minLength: 1
-          maxLength: 100
-          description: Name of person
+          format: uuid
+          description: UUID of the person from personal_information table
         weight:
           type: number
           format: float
@@ -80,7 +79,6 @@ components:
       type: object
       required:
         - id
-        - name
         - weight
         - startSelectionDate
         - endSelectionDate
