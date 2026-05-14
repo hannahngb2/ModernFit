@@ -1,4 +1,4 @@
-const API_BASE_URL = "";
+const API_BASE_URL = "/api";
 
 document.addEventListener("DOMContentLoaded", async function () {
   const weightValue = document.getElementById("weightValue");
@@ -73,7 +73,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       `Wahnsinn! Du hast ${diff} KG abgenommen!✨`,
       `${diff} KG runter. Du rockst das!🏋️‍♂️`,
       `Fantastisch! Minus ${diff} KG!  Jetzt nur nicht nachlassen!☝️`,
-      `Dieter, du bist unaufhaltbar! ${diff} KG weniger!🏆`
+      `Stefan, du bist unaufhaltbar! ${diff} KG weniger!🏆`
     ];
     const text = messages[Math.floor(Math.random() * messages.length)];
 
