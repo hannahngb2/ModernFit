@@ -1,15 +1,16 @@
 package com.wecote.modernfit.backend;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 public class CreateWeightEntryRequest {
 
-    private String name;
+    private UUID uuid;
     private Double weight;
     private LocalDate date;
 
-    public String getName() {
-        return name;
+    public UUID getUuid() {
+        return uuid;
     }
 
     public Double getWeight() {
@@ -20,8 +21,8 @@ public class CreateWeightEntryRequest {
         return date;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setUuid(UUID uuid) {
+        this.uuid = uuid;
     }
 
     public void setWeight(Double weight) {
