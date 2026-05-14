@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://hosting-007.wecote.ls.eee.intern/api";
+const API_BASE_URL = "/api";
 
 document.addEventListener("DOMContentLoaded", async function () {
   const weightValue = document.getElementById("weightValue");
