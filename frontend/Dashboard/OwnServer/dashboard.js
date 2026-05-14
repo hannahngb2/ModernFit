@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         lastMeasurement.textContent = new Date(latest.date).toLocaleDateString("de-DE");
 
         const firstName = latest.first_name ?? latest.name ?? "Nutzer";
-            document.querySelector("welcomeHeading").textContent =
+            document.querySelector(".welcome h1").textContent =
               `Willkommen zurück, ${firstName}!`;
       }
   }
