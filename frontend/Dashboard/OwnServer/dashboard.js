@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   const button = document.getElementById("saveBtn");
 
   await loadLatestWeight();
-  await loadWeightChart();
+  await loadWeightChart(parseInt(document.getElementById("chartFilter").value));;
 
   // GET latest weight
   async function loadLatestWeight() {
@@ -67,7 +67,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     lastMeasurement.textContent = new Date().toLocaleDateString("de-DE");
     input.value = "";
 
-    await loadWeightChart();
+    await loadWeightChart(parseInt(document.getElementById("chartFilter").value));
   }
 
   //  Motivationsnachricht anzeigen
@@ -134,6 +134,10 @@ document.addEventListener("DOMContentLoaded", async function () {
     data.sort((a, b) => new Date(a.date) - new Date(b.date));
 
     if (!data || data.length === 0) return;
+
+    const cutoff = new Date();
+        cutoff.setDate(cutoff.getDate() - days);
+        data = data.filter(d => new Date(d.date) >= cutoff);
 
     const svg = document.querySelector(".chart-svg");
     svg.querySelectorAll(".chart-line, .point, .axis-label, .grid-line").forEach(el => el.remove());
@@ -207,4 +211,8 @@ document.addEventListener("DOMContentLoaded", async function () {
   input.addEventListener("keydown", e => {
     if (e.key === "Enter") saveWeight();
   });
+
+  document.getElementById("chartFilter").addEventListener("change", e => {
+      loadWeightChart(parseInt(e.target.value));
+    });
 });
