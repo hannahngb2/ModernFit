@@ -20,9 +20,8 @@ document.addEventListener("DOMContentLoaded", async function () {
         weightValue.textContent = latest.weight;
         lastMeasurement.textContent = new Date(latest.date).toLocaleDateString("de-DE");
 
-        const firstName = latest.first_name ?? latest.name ?? "Nutzer";
-        document.querySelector(".welcome h1").textContent =
-          `Willkommen zurück, ${firstName}!`;
+        const firstName = latest.first_name ?? "Nutzer";
+        document.getElementById("welcomeHeading").textContent = `Willkommen zurück, ${firstName}!`;
       }
   }
 
@@ -77,7 +76,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       `Wahnsinn! Du hast ${diff} KG abgenommen!✨`,
       `${diff} KG runter. Du rockst das!🏋️‍♂️`,
       `Fantastisch! Minus ${diff} KG!  Jetzt nur nicht nachlassen!☝️`,
-      `Stefan, du bist unaufhaltbar! ${diff} KG weniger!🏆`
+      `Du bist unaufhaltbar! ${diff} KG weniger!🏆`
     ];
     const text = messages[Math.floor(Math.random() * messages.length)];
 
