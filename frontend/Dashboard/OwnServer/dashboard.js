@@ -20,8 +20,9 @@ document.addEventListener("DOMContentLoaded", async function () {
         weightValue.textContent = latest.weight;
         lastMeasurement.textContent = new Date(latest.date).toLocaleDateString("de-DE");
 
-        const firstName = latest.first_name ?? "Nutzer";
-        document.getElementById("welcomeHeading").textContent = `Willkommen zurück, ${firstName}!`;
+        const firstName = latest.first_name ?? latest.name ?? "Nutzer";
+            document.querySelector("welcomeHeading").textContent =
+              `Willkommen zurück, ${firstName}!`;
       }
   }
 
