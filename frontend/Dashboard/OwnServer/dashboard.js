@@ -124,7 +124,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     }, 8000);
   }
 
-  // ✅ days-Parameter ergänzt, let statt const für data
   async function loadWeightChart(days = 7) {
     const response = await fetch(`${API_BASE_URL}/weights`);
     let data = await response.json();
@@ -135,6 +134,9 @@ document.addEventListener("DOMContentLoaded", async function () {
     const cutoff = new Date();
     cutoff.setDate(cutoff.getDate() - days);
     data = data.filter(d => new Date(d.date) >= cutoff);
+
+    const svg = document.querySelector(".chart-svg");
+    svg.querySelectorAll(".chart-line, .point, .axis-label, .grid-line").forEach(el => el.remove());
 
     if (!data || data.length === 0) return;
 
