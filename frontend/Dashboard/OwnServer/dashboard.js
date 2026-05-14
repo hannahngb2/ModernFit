@@ -6,6 +6,8 @@ document.addEventListener("DOMContentLoaded", async function () {
   const input = document.getElementById("weightInput");
   const button = document.getElementById("saveBtn");
 
+  let currentUserName = "Stefan";
+
   await loadLatestWeight();
   await loadWeightChart(parseInt(document.getElementById("chartFilter").value));
 
@@ -20,7 +22,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       weightValue.textContent = latest.weight;
       lastMeasurement.textContent = new Date(latest.date).toLocaleDateString("de-DE");
 
-      const firstName = latest.first_name ?? latest.name ?? "Nutzer";
+      const firstName = latest.first_name ?? latest.name ?? "";
       document.querySelector(".welcome h1").textContent =
         `Willkommen zurück, ${firstName}!`;
     }
@@ -41,15 +43,13 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
 
     const response = await fetch(`${API_BASE_URL}/weights`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        name: "Dieter",
-        weight: value,
-        date: new Date().toISOString().split("T")[0]
-      })
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: currentUserName, // statt "Dieter"
+            weight: value,
+            date: new Date().toISOString().split("T")[0]
+          })
     });
 
     if (!response.ok) {
