@@ -33,7 +33,10 @@ public class WeightEntryController {
     }
 
     @GetMapping
-    public List<WeightEntry> getAll() {
-        return repository.findAllByOrderByDateAsc();
+    public List<WeightEntry> getWeights() {
+        return repository.findByPersonalInformation_FirstNameAndPersonalInformation_LastNameOrderByDate(
+                "Stefan",
+                "Keller"
+        );
     }
 }
