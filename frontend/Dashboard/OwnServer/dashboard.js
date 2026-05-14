@@ -15,11 +15,15 @@ document.addEventListener("DOMContentLoaded", async function () {
     const data = await response.json();
 
     if (data.length > 0) {
-      data.sort((a, b) => new Date(a.date) - new Date(b.date));
-      const latest = data[data.length - 1];
-      weightValue.textContent = latest.weight;
-      lastMeasurement.textContent = new Date(latest.date).toLocaleDateString("de-DE");
-    }
+        data.sort((a, b) => new Date(a.date) - new Date(b.date));
+        const latest = data[data.length - 1];
+        weightValue.textContent = latest.weight;
+        lastMeasurement.textContent = new Date(latest.date).toLocaleDateString("de-DE");
+
+        const firstName = latest.first_name ?? latest.name ?? "Nutzer";
+        document.querySelector(".welcome h1").textContent =
+          `Willkommen zurück, ${firstName}!`;
+      }
   }
 
   // POST new weight
