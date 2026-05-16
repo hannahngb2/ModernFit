@@ -516,8 +516,9 @@ chartFilter {
             width: 90%;
         }
     }
+}
 
-    #motivationToast {
+#motivationToast {
             position: fixed;
             bottom: 40px;
             left: 50%;
@@ -542,4 +543,3 @@ chartFilter {
             opacity: 1;
             transform: translateX(-50%) translateY(0);
         }
-}
