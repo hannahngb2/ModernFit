@@ -7,8 +7,5 @@ import java.util.UUID;
 
 public interface WeightEntryRepository extends JpaRepository<WeightEntry, UUID> {
 
-    List<WeightEntry> findByPersonalInformation_FirstNameAndPersonalInformation_LastNameOrderByDate(
-            String firstName,
-            String lastName
-    );
+    List<WeightEntry> findByPersonalInformation_IdOrderByDate(UUID personalInformationId);
 }
