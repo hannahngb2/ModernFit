@@ -416,32 +416,6 @@ chartFilter {
         cursor: pointer;
     }
 
-    #motivationToast {
-        position: fixed;
-        bottom: 40px;
-        left: 50%;
-        transform: translateX(-50%) translateY(20px);
-        background: linear-gradient(135deg, rgba(124,108,246,0.92), rgba(46,211,211,0.85));
-        color: #fff;
-        font-family: 'Inter', system-ui, sans-serif;
-        font-size: 1.1rem;
-        font-weight: 700;
-        padding: 18px 32px;
-        border-radius: 999px;
-        border: 1px solid rgba(255,255,255,0.25);
-        box-shadow: 0 16px 48px rgba(0,0,0,0.35);
-        backdrop-filter: blur(16px);
-        z-index: 99999;
-        opacity: 0;
-        transition: opacity 0.4s ease, transform 0.4s ease;
-        white-space: nowrap;
-    }
-
-    #motivationToast.visible {
-        opacity: 1;
-        transform: translateX(-50%) translateY(0);
-    }
-
     @media (max-width: 1120px) {
         .app-shell {
             grid-template-columns: 1fr;
@@ -542,4 +516,30 @@ chartFilter {
             width: 90%;
         }
     }
+
+    #motivationToast {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: linear-gradient(135deg, rgba(124,108,246,0.92), rgba(46,211,211,0.85));
+            color: #fff;
+            font-family: 'Inter', system-ui, sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            padding: 18px 32px;
+            border-radius: 999px;
+            border: 1px solid rgba(255,255,255,0.25);
+            box-shadow: 0 16px 48px rgba(0,0,0,0.35);
+            backdrop-filter: blur(16px);
+            z-index: 99999;
+            opacity: 0;
+            transition: opacity 0.4s ease, transform 0.4s ease;
+            white-space: nowrap;
+        }
+
+        #motivationToast.visible {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
 }
