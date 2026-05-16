@@ -71,8 +71,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
       const toast = document.getElementById("motivationToast");
       toast.textContent = text;
-      toast.classList.add("visible")
-      toast.classList.remove("visible");
+      toast.classList.add("visible");
 
       setTimeout(() => {
           toast.classList.remove("visible");
