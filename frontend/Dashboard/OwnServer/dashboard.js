@@ -60,31 +60,23 @@ document.addEventListener("DOMContentLoaded", async function () {
   }
 
   function showMotivation(diff) {
-    const messages = [
-      `Super Erfolg! ${diff} KG weniger. Weiter so! 💪`,
-      `Wahnsinn! Du hast ${diff} KG abgenommen!✨`,
-      `${diff} KG runter. Du rockst das!🏋️‍♂️`,
-      `Fantastisch! Minus ${diff} KG! Jetzt nur nicht nachlassen!☝️`,
-      `Du bist unaufhaltbar! ${diff} KG weniger!🏆`
-    ];
-    const text = messages[Math.floor(Math.random() * messages.length)];
+      const messages = [
+          `Super Erfolg! ${diff} KG weniger. Weiter so! 💪`,
+          `Wahnsinn! Du hast ${diff} KG abgenommen! ✨`,
+          `${diff} KG runter. Du rockst das! 🏋️‍♂️`,
+          `Fantastisch! Minus ${diff} KG! Jetzt nur nicht nachlassen! ☝️`,
+          `Du bist unaufhaltbar! ${diff} KG weniger! 🏆`
+      ];
+      const text = messages[Math.floor(Math.random() * messages.length)];
 
-    const existing = document.getElementById("motivationToast");
-    if (existing) existing.remove();
-
-    const toast = document.createElement("div");
-    toast.id = "motivationToast";
-    toast.textContent = text;
-    document.body.appendChild(toast);
-
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => { toast.classList.add("visible"); });
-    });
-
-    setTimeout(() => {
+      const toast = document.getElementById("motivationToast");
+      toast.textContent = text;
+      toast.classList.add("visible")
       toast.classList.remove("visible");
-      setTimeout(() => toast.remove(), 400);
-    }, 8000);
+
+      setTimeout(() => {
+          toast.classList.remove("visible");
+      }, 8000);
   }
 
   async function loadWeightChart(days = 30) {
