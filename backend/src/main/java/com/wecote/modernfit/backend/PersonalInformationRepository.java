@@ -1,7 +1,6 @@
 package com.wecote.modernfit.backend;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-
 import java.util.UUID;
 
 public interface PersonalInformationRepository extends JpaRepository<PersonalInformation, UUID> {
