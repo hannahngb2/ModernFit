@@ -3,7 +3,6 @@ package com.wecote.modernfit.backend;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.UUID;
-
 import jakarta.persistence.ManyToOne;
 
 @Entity
@@ -12,17 +11,14 @@ public class WeightEntry {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-
-    private String name;
-
+   private String name;
     private Double weight;
-
     private LocalDate date;
 
     @ManyToOne
     private PersonalInformation personalInformation;
 
-    // Getter
+    // Gettermethoden
     public UUID getId() {
         return id;
     }
@@ -42,7 +38,7 @@ public class WeightEntry {
         return personalInformation;
     }
 
-    // Setter
+    // Settermethoden
     public void setId(UUID id) {
         this.id = id;
     }
@@ -62,5 +58,4 @@ public class WeightEntry {
     public void setPersonalInformation(PersonalInformation personalInformation) {
         this.personalInformation = personalInformation;
     }
-
 }
