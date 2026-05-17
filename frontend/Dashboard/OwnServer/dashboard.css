@@ -87,7 +87,7 @@ body {
     fill: currentColor;
 }
 
-/* ── Tooltip ── */
+
 .tooltip {
     position: absolute;
     left: calc(100% + 14px);
@@ -345,7 +345,6 @@ body {
     fill: #26d2cb;
 }
 
-/* ── Motivation Toast – GLOBAL, außerhalb aller Media-Queries ── */
 #motivationToast {
     position: fixed;
     bottom: 40px;
@@ -372,7 +371,7 @@ body {
     transform: translateX(-50%) translateY(0);
 }
 
-/* ── Media Queries ── */
+
 @media (max-width: 1120px) {
     .app-shell {
         grid-template-columns: 1fr;
