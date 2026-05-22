@@ -87,7 +87,7 @@ body {
     fill: currentColor;
 }
 
-/* ── Tooltip ── */
+
 .tooltip {
     position: absolute;
     left: calc(100% + 14px);
@@ -109,7 +109,6 @@ body {
     z-index: 9999;
 }
 
-/* kleiner Pfeil links am Tooltip */
 .tooltip::before {
     content: "";
     position: absolute;
@@ -134,8 +133,6 @@ body {
     opacity: 1;
     transform: translateY(-50%) translateX(0);
 }
-
-/* ── Rest unverändert ── */
 
 .content {
     display: flex;
@@ -283,7 +280,7 @@ body {
     backdrop-filter: blur(8px);
 }
 
-chartFilter {
+#chartFilter {
     appearance: none;
     cursor: pointer;
     padding: 12px 18px;
@@ -348,6 +345,33 @@ chartFilter {
     fill: #26d2cb;
 }
 
+#motivationToast {
+    position: fixed;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: linear-gradient(135deg, rgba(124,108,246,0.92), rgba(46,211,211,0.85));
+    color: #fff;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    padding: 18px 32px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.25);
+    box-shadow: 0 16px 48px rgba(0,0,0,0.35);
+    backdrop-filter: blur(16px);
+    z-index: 99999;
+    opacity: 0;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    white-space: nowrap;
+}
+
+#motivationToast.visible {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+
 @media (max-width: 1120px) {
     .app-shell {
         grid-template-columns: 1fr;
@@ -357,9 +381,9 @@ chartFilter {
         flex-direction: row;
         justify-content: center;
         width: 100%;
+        border-radius: 22px;
     }
 
-    /* Tooltip auf Mobile nach unten zeigen */
     .tooltip {
         left: 50%;
         top: calc(100% + 14px);
@@ -390,156 +414,76 @@ chartFilter {
         transform: translateX(-50%) translateY(0);
     }
 
-    .dashboard-grid {
+    .dashboard {
         grid-template-columns: 1fr;
     }
 
     .input-section {
-        margin-top: 10px;
-    }
-
-    .input-section label {
-        display: block;
-        margin-bottom: 5px;
-        font-weight: 500;
+        margin-top: 24px;
     }
 
     #weightInput {
-        padding: 4px;
-        border-radius: 4px;
-        border: 1px solid #ccc;
+        padding: 0 14px;
+        border-radius: 12px;
+        border: 1px solid var(--stroke);
     }
 
     #saveBtn {
-        margin-left: 5px;
-        padding: 4px 8px;
-        cursor: pointer;
+        margin-left: 8px;
+        padding: 0 16px;
+    }
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 12px;
+    }
+
+    .welcome h1 {
+        font-size: 2rem;
+    }
+
+    .welcome p {
+        font-size: 1rem;
+    }
+
+    .card {
+        padding: 16px;
+    }
+
+    .card h2 {
+        font-size: 1.4rem;
+    }
+
+    .weight-number {
+        font-size: 2.8rem;
+    }
+
+    .weight-unit {
+        font-size: 1.6rem;
+    }
+
+    #weightInput {
+        width: 100%;
+        margin-bottom: 8px;
+    }
+
+    #saveBtn {
+        width: 100%;
+        margin-left: 0;
+    }
+
+    .chart-top {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
     }
 
     #motivationToast {
-        position: fixed;
-        bottom: 40px;
-        left: 50%;
-        transform: translateX(-50%) translateY(20px);
-        background: linear-gradient(135deg, rgba(124,108,246,0.92), rgba(46,211,211,0.85));
-        color: #fff;
-        font-family: 'Inter', system-ui, sans-serif;
-        font-size: 1.1rem;
-        font-weight: 700;
-        padding: 18px 32px;
-        border-radius: 999px;
-        border: 1px solid rgba(255,255,255,0.25);
-        box-shadow: 0 16px 48px rgba(0,0,0,0.35);
-        backdrop-filter: blur(16px);
-        z-index: 99999;
-        opacity: 0;
-        transition: opacity 0.4s ease, transform 0.4s ease;
-        white-space: nowrap;
-    }
-
-    #motivationToast.visible {
-        opacity: 1;
-        transform: translateX(-50%) translateY(0);
-    }
-
-    @media (max-width: 1120px) {
-        .app-shell {
-            grid-template-columns: 1fr;
-        }
-
-        .sidebar {
-            flex-direction: row;
-            justify-content: center;
-            width: 100%;
-            border-radius: 22px;
-        }
-
-        .tooltip {
-            left: 50%;
-            top: calc(100% + 14px);
-            transform: translateX(-50%) translateY(-6px);
-        }
-
-        .tooltip::before {
-            right: auto; left: 50%;
-            top: auto; bottom: 100%;
-            transform: translateX(-50%);
-            border-right-color: transparent;
-            border-bottom-color: rgba(255,255,255,0.14);
-        }
-
-        .tooltip::after {
-            right: auto; left: 50%;
-            top: auto; bottom: calc(100% - 1px);
-            transform: translateX(-50%);
-            border-right-color: transparent;
-            border-bottom-color: rgba(19,31,77,0.92);
-        }
-
-        .nav-btn:hover .tooltip {
-            transform: translateX(-50%) translateY(0);
-        }
-
-        .dashboard {
-            grid-template-columns: 1fr;
-        }
-
-        .input-section {
-            margin-top: 24px;
-        }
-    }
-
-    @media (max-width: 600px) {
-        body {
-            padding: 12px;
-        }
-
-        .welcome h1 {
-            font-size: 2rem;
-        }
-
-        .welcome p {
-            font-size: 1rem;
-        }
-
-        .card {
-            padding: 16px;
-        }
-
-        .card h2 {
-            font-size: 1.4rem;
-        }
-
-        .weight-number {
-            font-size: 2.8rem;
-        }
-
-        .weight-unit {
-            font-size: 1.6rem;
-        }
-
-        #weightInput {
-            width: 100%;
-            margin-bottom: 8px;
-        }
-
-        #saveBtn {
-            width: 100%;
-            margin-left: 0;
-        }
-
-        .chart-top {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 10px;
-        }
-
-        #motivationToast {
-            font-size: 0.9rem;
-            padding: 14px 20px;
-            white-space: normal;
-            text-align: center;
-            width: 90%;
-        }
+        font-size: 0.9rem;
+        padding: 14px 20px;
+        white-space: normal;
+        text-align: center;
+        width: 90%;
     }
 }
