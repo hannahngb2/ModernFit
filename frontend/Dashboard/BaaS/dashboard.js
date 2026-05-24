@@ -1,11 +1,10 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
-const SUPABASE_URL = 'https://gngmaibtdfcnmqrelwgr.supabase.co'   // ← ersetzen
-const SUPABASE_KEY = 'sb_publishable_5cclSCRIX5ewxeZ8rv3FVA_PBApLf3H'                    // ← ersetzen
+const SUPABASE_URL = 'https://gngmaibtdfcnmqrelwgr.supabase.co'
+const SUPABASE_KEY = 'sb_publishable_5cclSCRIX5ewxeZ8rv3FVA_PBApLf3H'
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
 
 const PERSONAL_ID = 1
-
 
 document.addEventListener("DOMContentLoaded", async function () {
   const weightValue     = document.getElementById("weightValue")
@@ -13,12 +12,10 @@ document.addEventListener("DOMContentLoaded", async function () {
   const input           = document.getElementById("weightInput")
   const button          = document.getElementById("saveBtn")
 
-  // Letzten Eintrag beim Laden anzeigen
   await loadLatestWeight()
   await loadUserName()
   await loadWeightChart()
 
-  // ── Letztes Gewicht laden ──────────────────────────────────────
   async function loadLatestWeight() {
     const { data, error } = await supabase
       .from('weight_data')
@@ -39,7 +36,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         .toLocaleDateString("de-DE")
     }
   }
-  //---- Client Name anzeigen ----------------------
+
   async function loadUserName() {
     const { data, error } = await supabase
       .from('personal_information')
@@ -56,7 +53,6 @@ document.addEventListener("DOMContentLoaded", async function () {
       `Willkommen zurück, ${data.first_name}`
   }
 
-  // ── Neues Gewicht speichern ────────────────────────────────────
   async function saveWeight() {
     const value = parseFloat(input.value.replace(",", "."))
 
@@ -78,7 +74,6 @@ document.addEventListener("DOMContentLoaded", async function () {
       return
     }
 
-    // UI aktualisieren
     weightValue.textContent     = value
     lastMeasurement.textContent = new Date().toLocaleDateString("de-DE")
     input.value = ""
@@ -86,7 +81,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     await loadWeightChart()
   }
 
-  // --------- Grafische Darstellung -----------
 
   async function loadWeightChart() {
 
@@ -105,10 +99,8 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     const svg = document.querySelector('.chart-svg')
 
-    // Alte statische Elemente entfernen
     svg.querySelectorAll('.chart-line, .point, .axis-label, .grid-line').forEach(el => el.remove())
 
-    // Chart-Dimensionen
     const W = 760, H = 270
     const padL = 40, padR = 40, padT = 35, padB = 70
 
@@ -117,14 +109,12 @@ document.addEventListener("DOMContentLoaded", async function () {
     const maxW     = Math.max(...weights) + 5
     const n        = data.length
 
-    // X/Y Koordinaten berechnen
     const points = data.map((d, i) => {
       const x = padL + (i / (n - 1 || 1)) * (W - padL - padR)
       const y = padT + (1 - (d.weight - minW) / (maxW - minW)) * (H - padT - padB)
       return { x, y, weight: d.weight, date: new Date(d.created_at) }
     })
 
-    // Grid-Linien
     points.forEach(p => {
       const line = document.createElementNS('http://www.w3.org/2000/svg', 'line')
       line.setAttribute('x1', p.x); line.setAttribute('y1', padT)
@@ -133,7 +123,6 @@ document.addEventListener("DOMContentLoaded", async function () {
       svg.appendChild(line)
     })
 
-    // Smooth Kurve (Bezier)
     let d = `M${points[0].x} ${points[0].y}`
     for (let i = 1; i < points.length; i++) {
       const prev = points[i - 1], curr = points[i]
@@ -145,7 +134,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     path.setAttribute('class', 'chart-line')
     svg.appendChild(path)
 
-    // Punkte + Labels
     points.forEach((p, i) => {
       const isLast = i === points.length - 1
 
@@ -156,7 +144,6 @@ document.addEventListener("DOMContentLoaded", async function () {
       circle.setAttribute('class', isLast ? 'point last' : 'point')
       svg.appendChild(circle)
 
-      // Datum unter dem Punkt
       const label = document.createElementNS('http://www.w3.org/2000/svg', 'text')
       label.setAttribute('x', p.x)
       label.setAttribute('y', H - padB + 30)
@@ -165,7 +152,6 @@ document.addEventListener("DOMContentLoaded", async function () {
       label.textContent = p.date.toLocaleDateString('de-DE', { day:'2-digit', month:'2-digit' })
       svg.appendChild(label)
 
-      // Gewicht über dem Punkt
       const wLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text')
       wLabel.setAttribute('x', p.x)
       wLabel.setAttribute('y', p.y - 16)

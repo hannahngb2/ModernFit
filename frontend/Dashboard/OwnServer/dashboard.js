@@ -49,7 +49,9 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     const previousWeight = parseFloat(weightValue.textContent);
     if (!isNaN(previousWeight) && value < previousWeight) {
-      showMotivation((previousWeight - value).toFixed(1));
+      showMotivationLessWeight((previousWeight - value).toFixed(1));
+    } else if(!isNaN(previousWeight) && value > previousWeight){
+        showMotivationMoreWeight((value - previousWeight).toFixed(1));
     }
 
     weightValue.textContent = value;
@@ -59,13 +61,13 @@ document.addEventListener("DOMContentLoaded", async function () {
     await loadWeightChart(parseInt(document.getElementById("chartFilter").value));
   }
 
-  function showMotivation(diff) {
+  function showMotivationLessWeight(diff) {
       const messages = [
-          `Super Erfolg! ${diff} KG weniger. Weiter so! 💪`,
-          `Wahnsinn! Du hast ${diff} KG abgenommen! ✨`,
-          `${diff} KG runter. Du rockst das! 🏋️‍♂️`,
-          `Fantastisch! Minus ${diff} KG! Jetzt nur nicht nachlassen! ☝️`,
-          `Du bist unaufhaltbar! ${diff} KG weniger! 🏆`
+          `Super Erfolg! ${diff} KG weniger. Weiter so!`,
+          `Wahnsinn! Du hast ${diff} KG abgenommen!`,
+          `${diff} KG runter. Du rockst das!`,
+          `Fantastisch! Minus ${diff} KG! Jetzt nur nicht nachlassen!`,
+          `Du bist unaufhaltbar! ${diff} KG weniger!`
       ];
       const text = messages[Math.floor(Math.random() * messages.length)];
 
@@ -77,6 +79,25 @@ document.addEventListener("DOMContentLoaded", async function () {
           toast.classList.remove("visible");
       }, 8000);
   }
+
+  function showMotivationMoreWeight(diff) {
+        const messages = [
+            `Eine Zahl definiert nicht deinen Fortschritt`,
+            `Schwankungen sind völlig normal.`,
+            `Fortschritt ist nie linear!`,
+            `Gewicht kann durch Wasser, Stress oder Schlaf schwanken.`,
+            `Geduld gehört zum Prozess.`
+        ];
+        const text = messages[Math.floor(Math.random() * messages.length)];
+
+        const toast = document.getElementById("motivationToast");
+        toast.textContent = text;
+        toast.classList.add("visible");
+
+        setTimeout(() => {
+            toast.classList.remove("visible");
+        }, 8000);
+    }
 
   async function loadWeightChart(days = 30) {
     const response = await fetch(`${API_BASE_URL}/weights?personalInformationId=${CURRENT_USER_ID}`);
