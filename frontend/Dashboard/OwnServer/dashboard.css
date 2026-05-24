@@ -150,7 +150,6 @@ body {
   color: var(--muted);
   letter-spacing: normal;
   margin: 0 0 2px 0;
-  line-height: 1;
 }
 
 .welcome p {

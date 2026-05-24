@@ -77,7 +77,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
       setTimeout(() => {
           toast.classList.remove("visible");
-      }, 8000);
+      }, 10000);
   }
 
   function showMotivationMoreWeight(diff) {
@@ -96,7 +96,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         setTimeout(() => {
             toast.classList.remove("visible");
-        }, 8000);
+        }, 10000);
     }
 
   async function loadWeightChart(days = 30) {
