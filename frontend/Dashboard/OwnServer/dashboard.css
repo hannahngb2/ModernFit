@@ -145,11 +145,10 @@ body {
 }
 
 .welcome h1 {
-    margin: 0;
-    font-size: clamp(1.8rem, 3.5vw, 2.8rem);
-    line-height: 1.02;
-    font-weight: 400;
-    letter-spacing: -0.04em;
+  font-size: 1.8rem;
+  font-weight: 400;
+  color: var(--muted);
+  letter-spacing: normal;
 }
 
 .welcome p {
