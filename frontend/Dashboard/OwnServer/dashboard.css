@@ -152,7 +152,7 @@ body {
 }
 
 .welcome p {
-    margin: 4px 0 0;
+    margin: 0;
     color: var(--muted);
     font-size: 1.2rem;
 }
