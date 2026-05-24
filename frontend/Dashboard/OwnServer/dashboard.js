@@ -33,7 +33,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     const value = parseFloat(input.value.replace(",", "."));
 
     if (isNaN(value)) { alert("Bitte ein gültiges Gewicht eingeben."); return; }
-    if (value < 20 || value > 300) { alert("Das Gewicht muss zwischen 20 und 300 kg liegen."); return; }
+    if (value < 40 || value > 300) { alert("Das Gewicht muss zwischen 20 und 300 kg liegen."); return; }
 
     const response = await fetch(`${API_BASE_URL}/weights`, {
       method: "POST",
